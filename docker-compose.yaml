@@ -1,0 +1,90 @@
+version: "3"
+
+services:
+  elasticsearch:
+    image: elasticsearch:5.6
+    container_name: elasticsearch
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changeme
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  pgadmin:
+    image: fenglc/pgadmin4
+    container_name: pgadmin
+    links:
+      - postgres:postgres
+    ports:
+      - "5050:5050"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  redis:
+    image: bitnami/redis:4.0-ol-7
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
+    networks:
+      - redisnet
+
+networks:
+  esnet:
+    driver: bridge
+  postgres:
+    driver: bridge
+  redisnet:
+    driver: bridge
+
+#  service_mongodb:
+#    container_name: service_mongodb
+#    build: github.com/naturalacneclinic/docker-mongo-auth.git
+#    volumes:
+#      - "./storage/mongodb_data:/data/db"
+#    restart: always
+#    env_file:
+#      - ./.env
+#    environment:
+#      AUTH: "yes"
+#      MONGODB_APPLICATION_DATABASE: $MONGO_DATABASE
+#      MONGODB_APPLICATION_USER: $MONGO_USER
+#      MONGODB_APPLICATION_PASS: $MONGO_PASSWORD
+#      MONGODB_ADMIN_USER: "root"
+#      MONGODB_ROOT_PASSWORD: $MONGO_ROOT_PASSWORD
+#      MONGODB_ADMIN_PASS: $MONGO_ROOT_PASSWORD
+#
+#  service_mysql:
+#    container_name: service_mysql
+#    image: mysql:5.7
+#    volumes:
+#      - "./storage/mysql_data:/var/lib/mysql"
+#    restart: always
+#    env_file:
+#       - ./.env
+#    environment:
+#      MYSQL_DATABASE: $RDS_DB_NAME
+#      MYSQL_USER: $RDS_USERNAME
+#      MYSQL_PASSWORD: $RDS_PASSWORD
+#      MYSQL_PORT: $RDS_PORT
+#      MYSQL_ROOT_PASSWORD: $RDS_ROOT_PASSWORD
+#    command: --character-set-server=utf8 --collation-server=utf8_general_ci
