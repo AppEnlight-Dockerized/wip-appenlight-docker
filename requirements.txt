@@ -3,7 +3,7 @@ appenlight_client
 Authomatic==0.1.0.post1
 camplight==0.9.6
 celery==3.1.23
-colander==1.2
+colander==1.7.0
 cryptography==1.2.3
 dogpile.cache==0.5.7
 FormEncode==1.3.0
